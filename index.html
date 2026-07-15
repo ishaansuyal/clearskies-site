@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClearSkies | Community Radon Monitoring</title>
+  <meta name="description" content="ClearSkies deploys low-cost continuous radon sensors in communities across Iowa, streaming real-time air quality data to protect families from invisible risk.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ClearSkies | Community Radon Monitoring">
+  <meta property="og:description" content="ClearSkies deploys low-cost continuous radon sensors in communities across Iowa, streaming real-time air quality data to protect families from invisible risk.">
+  <meta property="og:image" content="images/logoclear.jpeg">
+  <link rel="icon" type="image/jpeg" href="images/logoclear.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Atmosphere: sky → ground scene ── -->
+<div class="scene" aria-hidden="true">
+  <div class="scene-sky"></div>
+  <div class="scene-ground"></div>
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="cloud cloud-5"></div>
+</div>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="images/logoclear.jpeg" alt="ClearSkies">
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="recognition.html">Recognition</a></li>
+      <li><a href="setup.html">Setup</a></li>
+      <li><a href="get-involved.html">Get Involved</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="label">Community Radon Monitoring Initiative</span>
+      <h1>ClearSkies</h1>
+      <p class="mission">
+        Continuous, open-source radon sensing for communities that can't afford
+        to wait for a one-time test. Streaming live air quality data
+        to anyone who needs it.
+      </p>
+      <div class="hero-cta">
+        <a class="btn" href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">Support on GoFundMe</a>
+        <a class="btn btn-outline" href="setup.html">How It Works</a>
+      </div>
+    </div>
+
+    <!-- Sensor readout panel -->
+    <div class="sensor-unit" role="img" aria-label="Live sensor readout showing 2.4 pCi/L">
+      <div class="sensor-header">
+        <div>
+          <div class="sensor-id">CS-RD200 &nbsp;//&nbsp; UNIT-001</div>
+          <div class="sensor-loc">Johnston, Iowa</div>
+        </div>
+        <div class="sensor-status">
+          <span class="status-text">Live</span>
+          <span class="status-dot"></span>
+        </div>
+      </div>
+
+      <div class="reading-display">
+        <div class="reading-label">Current Radon Level</div>
+        <div class="reading-value" id="reading-value">0.0</div>
+        <div class="reading-unit">pCi / L</div>
+      </div>
+
+      <div class="chart-label">24-hr Reading History &nbsp;·&nbsp; 10-min intervals</div>
+      <div class="mini-chart" id="mini-chart"></div>
+
+      <div class="scale-section">
+        <div class="scale-track-wrap">
+          <div class="scale-track">
+            <div class="scale-seg seg-safe"></div>
+            <div class="scale-seg seg-moderate"></div>
+            <div class="scale-seg seg-action"></div>
+          </div>
+          <div class="scale-marker" id="scale-marker"></div>
+        </div>
+        <div class="scale-labels">
+          <span>0</span>
+          <span>2 &nbsp;caution</span>
+          <span>4 &nbsp;EPA action</span>
+          <span>8+ pCi/L</span>
+        </div>
+      </div>
+
+      <div class="sensor-meta">
+        <div class="meta-item">
+          <div class="meta-lbl">Last Updated</div>
+          <div class="meta-val" id="sensor-time">--:--:--</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-lbl">Poll Interval</div>
+          <div class="meta-val">10 MIN</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-lbl">Sensor</div>
+          <div class="meta-val">RD200</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-lbl">Firmware</div>
+          <div class="meta-val">ESPHome</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Problem ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">The Problem</div>
+    <h2 class="section-title">Radon is invisible, and almost always unmonitored</h2>
+    <p class="section-sub">
+      It has no smell, no color, no warning sign. It seeps through foundations and accumulates
+      indoors, and most families live in it for years without knowing.
+    </p>
+
+    <div class="stat-grid mt-40">
+      <div class="stat-card">
+        <div class="stat-number">21,000</div>
+        <h3>Deaths per year</h3>
+        <p>Radon is the second leading cause of lung cancer in the United States, responsible for roughly 21,000 deaths annually, according to the EPA.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">&lt;5%</div>
+        <h3>Homes actively monitored</h3>
+        <p>Despite being the leading environmental cause of lung cancer, the vast majority of American homes have never had a radon test, let alone continuous monitoring.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4.0</div>
+        <h3>pCi/L: EPA action level</h3>
+        <p>The EPA recommends mitigation when indoor radon exceeds 4.0 pCi/L. The national average is 1.3 pCi/L, but Iowa averages significantly higher due to its geology.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">71%</div>
+        <h3>of Iowa homes exceed the limit</h3>
+        <p>Iowa has the highest rate of homes above the EPA radon action level of any state in the US, making continuous monitoring especially urgent here.</p>
+      </div>
+    </div>
+
+    <div class="problem-strip">
+      <div class="strip-num">#2</div>
+      <p>
+        <strong>Radon is the second-leading cause of lung cancer in the US,</strong> behind only smoking.
+        It is responsible for more deaths each year than drunk driving, falls in the home, and house fires combined.
+        The risk is real, concentrated, and almost entirely preventable with timely detection.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Solution ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">The Solution</div>
+    <h2 class="section-title">Always-on radon monitoring, free to receive</h2>
+    <p class="section-sub">
+      ClearSkies units read radon every 10 minutes and stream the data live,
+      so a spike at 2 a.m. doesn't go unnoticed until the next annual test.
+      We give them out at no cost, funded entirely by donations.
+    </p>
+
+    <div class="stat-grid mt-40">
+      <div class="stat-card">
+        <div class="stat-number">Free</div>
+        <h3>To receive</h3>
+        <p>ClearSkies units are given out at no charge. Each node costs $124 to build (covered by donations), because no one should have to pay just to know if their home is safe.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">10 min</div>
+        <h3>Polling interval</h3>
+        <p>The RD200 pulsed ion chamber sensor samples the air continuously and reports a fresh reading every 10 minutes, logged in real time to the cloud.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">Live</div>
+        <h3>Streaming dashboard</h3>
+        <p>Data flows from the sensor through Firebase Realtime Database into TagoIO, giving anyone with the link a live, time-series view of their indoor air.</p>
+      </div>
+    </div>
+
+    <div class="problem-strip" style="border-left-color: var(--yellow); margin-top: 32px;">
+      <div class="strip-num" style="color: var(--yellow);">~</div>
+      <p>
+        <strong>One-time tests only show a snapshot.</strong>
+        Radon levels fluctuate with weather, season, HVAC cycles, and soil pressure.
+        A 48-hour canister test can completely miss spikes that a continuous monitor would catch
+        within hours. The bar chart in the readout above illustrates exactly this: elevated readings
+        that come and go, invisible to any single-point test.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── How it works ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Technical Overview</div>
+    <h2 class="section-title">How a ClearSkies unit works</h2>
+    <p class="section-sub">Each node is built from off-the-shelf hardware running open-source firmware, with no proprietary cloud lock-in.</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-index">Step 01</div>
+        <div class="step-tag">RD200</div>
+        <h3>Pulsed Ion Chamber</h3>
+        <p>The RD200 sensor detects alpha particles emitted by radon decay, producing a count rate proportional to radon concentration.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-index">Step 02</div>
+        <div class="step-tag">ESP32</div>
+        <h3>Edge Processing</h3>
+        <p>The ESP32 microcontroller reads the RD200 over serial UART, converts counts to pCi/L, and prepares the payload for transmission.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-index">Step 03</div>
+        <div class="step-tag">ESPHome</div>
+        <h3>Firmware &amp; Wi-Fi</h3>
+        <p>ESPHome YAML config handles the 10-minute polling cycle, Wi-Fi connectivity, and pushes readings to the cloud endpoint.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-index">Step 04</div>
+        <div class="step-tag">Firebase / TagoIO</div>
+        <h3>Live Dashboard</h3>
+        <p>Readings land in Firebase Realtime Database. TagoIO pulls the data and renders a live, publicly accessible time-series dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Deployment ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Deployment</div>
+    <h2 class="section-title">Currently active in Iowa</h2>
+    <p class="section-sub">
+      ClearSkies sensors are live and streaming in two Iowa communities,
+      chosen for their elevated baseline radon geology and community partnership.
+    </p>
+
+    <div class="stat-grid mt-24">
+      <div class="stat-card">
+        <div class="stat-number">3</div>
+        <h3>Units deployed</h3>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">2</div>
+        <h3>Communities</h3>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">14</div>
+        <h3>People protected</h3>
+      </div>
+    </div>
+
+    <div class="deploy-chips">
+      <div class="chip"><span class="chip-dot"></span>Johnston, Iowa</div>
+      <div class="chip"><span class="chip-dot"></span>Keokuk, Iowa</div>
+    </div>
+    <p class="text-muted mt-24" style="font-size:0.88rem;">
+      Want to bring ClearSkies to your community?
+      <a href="contact.html">Get in touch</a> or <a href="setup.html">read the setup guide</a>.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── About ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">The Story</div>
+    <h2 class="section-title">Built in two weeks by a 15-year-old</h2>
+
+    <div class="problem-strip" style="border-left-color: var(--accent); margin-top: 32px;">
+      <div class="strip-num" style="color: var(--accent); font-size: 2rem; line-height:1.2;">Ishaan<br>Suyal</div>
+      <p>
+        Ishaan was scrolling Instagram when he came across just how dangerous radon really is.
+        Two weeks later, he had a working prototype. He's a sophomore at Johnston High School,
+        and he started ClearSkies because he believes <strong>no one should have to pay
+        just to know if their home is safe, so every unit is given out free,
+        funded entirely by donations.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="container">
+  <div class="cta-block">
+    <h2>Help expand the network</h2>
+    <p>Each sensor deployed is one more household with real data instead of guesswork. Support ClearSkies on GoFundMe to fund the next units.</p>
+    <div class="btn-group">
+      <a class="btn" href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">Donate on GoFundMe</a>
+      <a class="btn btn-outline" href="contact.html">Contact Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <a href="index.html"><img src="images/logoclear.jpeg" alt="ClearSkies"></a>
+      </div>
+      <div class="footer-tagline">Community Radon Monitoring Initiative<br>Johnston, Iowa</div>
+    </div>
+    <nav class="footer-nav">
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="recognition.html">Recognition</a></li>
+          <li><a href="setup.html">Setup</a></li>
+          <li><a href="get-involved.html">Get Involved</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <ul>
+          <li><a href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">GoFundMe</a></li>
+          <li><a href="https://www.instagram.com/clearskies.ia/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.linkedin.com/company/clearskies515/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://www.epa.gov/radon" target="_blank" rel="noopener">EPA Radon Info</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 ClearSkies. All rights reserved.</span>
+    <span>Built with open-source hardware &amp; firmware.</span>
+  </div>
+</footer>
+
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <span>Scroll</span>
+  <span class="scroll-cue-arrow"></span>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

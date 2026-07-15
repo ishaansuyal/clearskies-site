@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup | ClearSkies</title>
+  <meta name="description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, Firebase, and TagoIO. $124 to build, free to receive.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Setup | ClearSkies">
+  <meta property="og:description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, Firebase, and TagoIO. $124 to build, free to receive.">
+  <meta property="og:image" content="images/logoclear.jpeg">
+  <link rel="icon" type="image/jpeg" href="images/logoclear.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Atmosphere: sky → ground scene ── -->
+<div class="scene" aria-hidden="true">
+  <div class="scene-sky"></div>
+  <div class="scene-ground"></div>
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="cloud cloud-5"></div>
+</div>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="images/logoclear.jpeg" alt="ClearSkies">
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="recognition.html">Recognition</a></li>
+      <li><a href="setup.html" class="active">Setup</a></li>
+      <li><a href="get-involved.html">Get Involved</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="container page-header-flex">
+    <div>
+      <div class="section-label">Technical Setup</div>
+      <h1>How a Unit Is Built</h1>
+      <p class="section-sub mt-16">
+        Every ClearSkies sensor is assembled from off-the-shelf components running
+        open-source firmware. No proprietary hardware. No vendor lock-in.
+        Build cost: $124, provided free to recipients, funded by donations.
+      </p>
+    </div>
+    <img class="unit-photo" src="images/unit-photo.jpeg" alt="A completed ClearSkies radon sensor unit">
+  </div>
+</div>
+
+<!-- ── Hardware ── -->
+<section class="section" style="padding-top: 0;">
+  <div class="container">
+    <div class="section-label">Bill of Materials</div>
+    <h2 class="section-title mt-16">Hardware components</h2>
+
+    <table class="hardware-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Part / Version</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Microcontroller</td>
+          <td>ESP32 Dev Board</td>
+          <td>Wi-Fi + Bluetooth dual-core; runs ESPHome; widely available for ~$8–12</td>
+        </tr>
+        <tr>
+          <td>Radon Sensor</td>
+          <td>RD200 (refurbished)</td>
+          <td>Pulsed ion chamber; manufacturer-rated 10-min polling cycle; communicates over UART serial</td>
+        </tr>
+        <tr>
+          <td>Firmware</td>
+          <td>ESPHome</td>
+          <td>YAML-configured; handles polling, unit conversion (cpm → pCi/L), and cloud push; OTA updateable</td>
+        </tr>
+        <tr>
+          <td>Connectivity</td>
+          <td>Wi-Fi (2.4 GHz)</td>
+          <td>Standard home Wi-Fi; no hub or gateway required; sends data directly to Firebase endpoint</td>
+        </tr>
+        <tr>
+          <td>Cloud Storage</td>
+          <td>Firebase Realtime DB</td>
+          <td>Each reading timestamped and written to a structured JSON tree; free tier sufficient for current scale</td>
+        </tr>
+        <tr>
+          <td>Dashboard</td>
+          <td>TagoIO</td>
+          <td>Pulls from Firebase; renders live time-series charts; shareable public dashboard link</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Cost breakdown -->
+    <div class="section-label">Cost</div>
+    <h2 class="section-title mt-16">$124 to build, free to receive</h2>
+
+    <div class="cost-row">
+      <div class="cost-box">
+        <div class="cost-num">$124</div>
+        <div class="cost-lbl">Build cost per unit</div>
+      </div>
+      <div class="cost-breakdown">
+        RD200 sensor (refurbished) <span>~$80</span><br>
+        ESP32 dev board            <span>~$10</span><br>
+        Wiring + misc components   <span>~$34</span>
+      </div>
+    </div>
+
+    <p class="text-muted" style="font-size:0.88rem; max-width:580px;">
+      Refurbished RD200 sensors are sourced from verified suppliers and tested before deployment.
+      Commercial continuous radon monitors typically cost $200–$600. ClearSkies achieves
+      comparable accuracy at a fraction of the build cost, and gives them out for free,
+      because safety shouldn't be gated behind a purchase.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Firmware & Data Flow ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Data Pipeline</div>
+    <h2 class="section-title">From sensor to screen</h2>
+    <p class="section-sub mt-16">
+      Every 10 minutes, the RD200 completes a measurement cycle. ESPHome reads the count,
+      converts it, and pushes the result upstream with no manual intervention required.
+    </p>
+
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="fn-label">Detect</div>
+        <div class="fn-name">RD200</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="fn-label">Process</div>
+        <div class="fn-name">ESP32</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="fn-label">Orchestrate</div>
+        <div class="fn-name">ESPHome</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="fn-label">Store</div>
+        <div class="fn-name">Firebase</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-node">
+        <div class="fn-label">Visualize</div>
+        <div class="fn-name">TagoIO</div>
+      </div>
+    </div>
+
+    <div class="stat-grid mt-40">
+      <div class="stat-card">
+        <h3>ESPHome Configuration</h3>
+        <p style="margin-top:10px;">
+          The firmware is written as a YAML configuration file, readable and auditable by anyone.
+          It defines the UART bus, polling interval, conversion formula, and Wi-Fi credentials.
+          Updates can be pushed over-the-air without physical access to the unit.
+        </p>
+      </div>
+      <div class="stat-card">
+        <h3>Firebase Realtime Database</h3>
+        <p style="margin-top:10px;">
+          Each reading is stored with a Unix timestamp key under a per-device path.
+          The database is structured for efficient time-range queries and can support
+          dozens of units on a free Firebase plan. Data is retained indefinitely.
+        </p>
+      </div>
+      <div class="stat-card">
+        <h3>TagoIO Dashboard</h3>
+        <p style="margin-top:10px;">
+          TagoIO pulls data from Firebase and renders live charts, historical graphs,
+          and threshold alerts. A shareable public link means homeowners and community
+          members can check readings without creating an account.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Bring ClearSkies ── -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Expand the Network</div>
+    <h2 class="section-title">Bring ClearSkies to your community</h2>
+    <p class="section-sub mt-16">
+      The full hardware design, firmware configuration, and setup guide are available to any
+      community group, school, or individual who wants to deploy their own unit.
+      We can help you get started.
+    </p>
+
+    <div class="deploy-chips mt-40">
+      <div class="chip"><span class="chip-dot"></span>Open-source firmware (ESPHome)</div>
+      <div class="chip"><span class="chip-dot"></span>Off-the-shelf hardware</div>
+      <div class="chip"><span class="chip-dot"></span>No proprietary cloud</div>
+      <div class="chip"><span class="chip-dot"></span>Free to recipients</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="container">
+  <div class="cta-block">
+    <h2>Ready to deploy a unit?</h2>
+    <p>
+      Reach out to the ClearSkies team. We'll walk you through parts sourcing,
+      firmware setup, and getting your dashboard online.
+    </p>
+    <div class="btn-group">
+      <a class="btn" href="contact.html">Contact Us</a>
+      <a class="btn btn-outline" href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">Support the Project</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <a href="index.html"><img src="images/logoclear.jpeg" alt="ClearSkies"></a>
+      </div>
+      <div class="footer-tagline">Community Radon Monitoring Initiative<br>Johnston, Iowa</div>
+    </div>
+    <nav class="footer-nav">
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="recognition.html">Recognition</a></li>
+          <li><a href="setup.html">Setup</a></li>
+          <li><a href="get-involved.html">Get Involved</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <ul>
+          <li><a href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">GoFundMe</a></li>
+          <li><a href="https://www.instagram.com/clearskies.ia/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.linkedin.com/company/clearskies515/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://www.epa.gov/radon" target="_blank" rel="noopener">EPA Radon Info</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 ClearSkies. All rights reserved.</span>
+    <span>Built with open-source hardware &amp; firmware.</span>
+  </div>
+</footer>
+
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <span>Scroll</span>
+  <span class="scroll-cue-arrow"></span>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact | ClearSkies</title>
+  <meta name="description" content="Get in touch with the ClearSkies team for deployment questions, partnerships, or to support the project.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contact | ClearSkies">
+  <meta property="og:description" content="Get in touch with the ClearSkies team for deployment questions, partnerships, or to support the project.">
+  <meta property="og:image" content="images/logoclear.jpeg">
+  <link rel="icon" type="image/jpeg" href="images/logoclear.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Atmosphere: sky → ground scene ── -->
+<div class="scene" aria-hidden="true">
+  <div class="scene-sky"></div>
+  <div class="scene-ground"></div>
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="cloud cloud-5"></div>
+</div>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <img src="images/logoclear.jpeg" alt="ClearSkies">
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="recognition.html">Recognition</a></li>
+      <li><a href="setup.html">Setup</a></li>
+      <li><a href="get-involved.html">Get Involved</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="container">
+    <div class="section-label">Contact</div>
+    <h1>Get in Touch</h1>
+    <p class="section-sub mt-16">
+      Questions about deploying a unit, partnership opportunities,
+      media inquiries, or anything else. Send a message below.
+    </p>
+  </div>
+</div>
+
+<!-- ── Contact ── -->
+<section class="section" style="padding-top: 0;">
+  <div class="container">
+    <div class="contact-grid">
+
+      <!-- Form -->
+      <div>
+        <form class="contact-form" id="contact-form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" placeholder="Deployment question, partnership, media…">
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell us what's on your mind." required></textarea>
+          </div>
+          <button type="submit" class="btn">Send Message</button>
+        </form>
+        <div class="form-success" id="form-success">
+          ✓ &nbsp;Message queued. We'll be in touch shortly.
+        </div>
+      </div>
+
+      <!-- Aside -->
+      <div class="contact-aside">
+        <div class="stat-card mb-24">
+          <h3>Support on GoFundMe</h3>
+          <p style="margin-top:10px; font-size:0.88rem; color:var(--text-muted); line-height:1.6;">
+            The fastest way to help ClearSkies expand is to fund the next sensor units.
+            Every dollar goes directly toward hardware for new deployments.
+          </p>
+          <a class="btn mt-16" href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener"
+             style="display:inline-block; margin-top:18px;">Donate on GoFundMe</a>
+        </div>
+
+        <h3>Follow Along</h3>
+        <p>Updates on new deployments, data findings, and press coverage.</p>
+        <div class="social-links">
+          <a class="social-link" href="https://www.instagram.com/clearskies.ia/" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2c-2.72 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.28 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.28 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.4.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43-.26-.66-.6-1.22-1.16-1.77-.55-.56-1.11-.9-1.77-1.16-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.72 2 12 2zm0 1.8c2.67 0 2.99.01 4.04.06.98.04 1.5.21 1.86.34.47.18.8.4 1.15.75.35.35.57.68.75 1.15.13.36.29.88.34 1.86.05 1.05.06 1.37.06 4.04s-.01 2.99-.06 4.04c-.04.98-.21 1.5-.34 1.86-.18.47-.4.8-.75 1.15-.35.35-.68.57-1.15.75-.36.13-.88.29-1.86.34-1.05.05-1.37.06-4.04.06s-2.99-.01-4.04-.06c-.98-.04-1.5-.21-1.86-.34-.47-.18-.8-.4-1.15-.75-.35-.35-.57-.68-.75-1.15-.13-.36-.29-.88-.34-1.86C3.81 14.99 3.8 14.67 3.8 12s.01-2.99.06-4.04c.04-.98.21-1.5.34-1.86.18-.47.4-.8.75-1.15.35-.35.68-.57 1.15-.75.36-.13.88-.29 1.86-.34C9.01 3.81 9.33 3.8 12 3.8zm0 3.05a5.15 5.15 0 1 0 0 10.3 5.15 5.15 0 0 0 0-10.3zm0 8.5a3.35 3.35 0 1 1 0-6.7 3.35 3.35 0 0 1 0 6.7zm5.36-8.7a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg></span> Instagram
+          </a>
+          <a class="social-link" href="https://www.linkedin.com/company/clearskies515/" target="_blank" rel="noopener">
+            <span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></span> LinkedIn
+          </a>
+        </div>
+
+        <div style="margin-top:40px; padding-top:32px; border-top:1px solid var(--border);">
+          <div class="section-label mb-8">Based in</div>
+          <p style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); line-height:1.8;">
+            Johnston, Iowa
+          </p>
+
+          <div class="section-label mb-8" style="margin-top:24px;">Active units</div>
+          <div class="deploy-chips">
+            <div class="chip"><span class="chip-dot"></span>Unit 001, Johnston</div>
+            <div class="chip"><span class="chip-dot"></span>Unit 002, Keokuk</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <a href="index.html"><img src="images/logoclear.jpeg" alt="ClearSkies"></a>
+      </div>
+      <div class="footer-tagline">Community Radon Monitoring Initiative<br>Johnston, Iowa</div>
+    </div>
+    <nav class="footer-nav">
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="recognition.html">Recognition</a></li>
+          <li><a href="setup.html">Setup</a></li>
+          <li><a href="get-involved.html">Get Involved</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <ul>
+          <li><a href="https://gofund.me/b8601a1a9" target="_blank" rel="noopener">GoFundMe</a></li>
+          <li><a href="https://www.instagram.com/clearskies.ia/" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="https://www.linkedin.com/company/clearskies515/" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://www.epa.gov/radon" target="_blank" rel="noopener">EPA Radon Info</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 ClearSkies. All rights reserved.</span>
+    <span>Built with open-source hardware &amp; firmware.</span>
+  </div>
+</footer>
+
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <span>Scroll</span>
+  <span class="scroll-cue-arrow"></span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
