@@ -70,7 +70,7 @@
         </span>
       </div>
 
-      <p class="auth-hint">First time signing in on a registered device? An account is created automatically — just choose a password (6+ characters) and use it again next time.</p>
+      <p class="auth-hint">First time signing in on this device? An account is created automatically — just choose a password (6+ characters) and use it again next time.</p>
       <button type="submit" class="btn auth-submit" id="submit-btn">Log In</button>
     </form>
 
@@ -81,7 +81,6 @@
 <!-- ══════════════════════ Firebase ══════════════════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyDWa9OnO02bc8jOkLDlYqBLVyQgVCZTpqQ",
@@ -95,7 +94,6 @@
   };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  const db = firebase.database();
 
   const DEVICE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
@@ -180,26 +178,6 @@
     }
     if (password.length < 6) {
       showError('Password must be at least 6 characters.');
-      return;
-    }
-
-    setLoading(true, 'Checking device…');
-
-    // A device ID must already exist in the database — this is what stops
-    // a mistyped or made-up ID from silently creating a new account.
-    let deviceExists;
-    try {
-      const deviceSnap = await db.ref(`devices/${deviceId}`).once('value');
-      deviceExists = deviceSnap.exists();
-    } catch (checkError) {
-      setLoading(false);
-      showError('Could not verify that device — check your connection and try again.');
-      return;
-    }
-
-    if (!deviceExists) {
-      setLoading(false);
-      showError(`No device found with ID "${deviceId}". Double-check the ID printed on your unit, or contact us if you think this is a mistake.`);
       return;
     }
 
