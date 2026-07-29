@@ -111,7 +111,7 @@
   const db = firebase.database();
 
   const SAFE_LIMIT = 4.0;
-  const CAUTION_LIMIT = 2.0;
+  const CAUTION_LIMIT = 3.0;
   const MAX_READINGS = 10;
   const CHART_WINDOW_SECONDS = 24 * 60 * 60;
 
@@ -209,7 +209,7 @@
   }
 
   function levelInfo(value) {
-    if (value >= SAFE_LIMIT) return { tier: 'elevated', label: 'Elevated' };
+    if (value >= SAFE_LIMIT) return { tier: 'elevated', label: 'Danger' };
     if (value >= CAUTION_LIMIT) return { tier: 'caution', label: 'Caution' };
     return { tier: 'safe', label: 'Safe' };
   }
