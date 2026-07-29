@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | ClearSkies</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<header class="dash-bar">
+  <div class="dash-bar-inner">
+    <a class="dash-bar-logo" href="index.html">
+      <img src="images/logoclear.jpeg" alt="ClearSkies">
+      <span class="dash-device">Device: <strong id="device-label">—</strong></span>
+    </a>
+    <button class="btn-ghost" id="logout-btn">Log Out</button>
+  </div>
+</header>
+
+<main class="dash-main">
+
+  <div class="dash-loading" id="loading-state">
+    <span class="spinner"></span>
+    <span>Checking session…</span>
+  </div>
+
+  <div class="dash-error" id="error-state" style="display:none;"></div>
+
+  <div id="dash-content" style="display:none;">
+
+    <!-- ── Current reading ── -->
+    <section class="summary-card">
+      <div class="summary-reading">
+        <div class="summary-label">Current Radon Level</div>
+        <div class="summary-value" id="current-value">—</div>
+        <div class="summary-unit" id="current-unit">pCi / L</div>
+      </div>
+      <div class="summary-meta">
+        <div class="summary-meta-item">
+          <span class="summary-meta-lbl">Last Reading</span>
+          <span class="summary-meta-val" id="current-time">—</span>
+        </div>
+        <div class="summary-meta-item">
+          <span class="summary-meta-lbl">Variable</span>
+          <span class="summary-meta-val" id="current-variable">—</span>
+        </div>
+        <div class="summary-meta-item">
+          <span class="summary-meta-lbl">Total Readings</span>
+          <span class="summary-meta-val" id="reading-count">0</span>
+        </div>
+      </div>
+      <span class="badge" id="status-badge" style="justify-self: end;">
+        <span class="badge-dot"></span>
+        <span id="status-badge-text">No data</span>
+      </span>
+    </section>
+
+    <!-- ── Trend chart ── -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Reading Trend</h2>
+        <span class="panel-sub">Past 24 hours · Safe threshold 4.0 pCi/L</span>
+      </div>
+      <div class="chart-detail" id="chart-detail">Click a point on the chart to see that reading's details.</div>
+      <div id="chart-container"></div>
+    </section>
+
+    <!-- ── Table ── -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Recent Readings</h2>
+        <span class="panel-sub" id="table-sub">Newest first</span>
+      </div>
+      <div class="table-wrap">
+        <table class="readings-table" id="readings-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Value</th>
+              <th>Status</th>
+              <th>Variable</th>
+            </tr>
+          </thead>
+          <tbody id="readings-tbody"></tbody>
+        </table>
+      </div>
+      <div class="chart-empty" id="table-empty" style="display:none;">No readings yet for this device.</div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ══════════════════════ Firebase ══════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWa9OnO02bc8jOkLDlYqBLVyQgVCZTpqQ",
+    authDomain: "clearskiesdatabase-30f23.firebaseapp.com",
+    databaseURL: "https://clearskiesdatabase-30f23-default-rtdb.firebaseio.com",
+    projectId: "clearskiesdatabase-30f23",
+    storageBucket: "clearskiesdatabase-30f23.firebasestorage.app",
+    messagingSenderId: "301450268404",
+    appId: "1:301450268404:web:3b3818b943c33b7d2818a1",
+    measurementId: "G-ML2TQ58695"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  const SAFE_LIMIT = 4.0;
+  const CAUTION_LIMIT = 2.0;
+  const MAX_READINGS = 10;
+  const CHART_WINDOW_SECONDS = 24 * 60 * 60;
+
+  let chartPoints = []; // currently-plotted points, oldest → newest
+  let selectedTimestamp = null;
+
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const dashContent = document.getElementById('dash-content');
+  const deviceLabel = document.getElementById('device-label');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  let readingsRef = null;
+
+  function showError(message) {
+    loadingState.style.display = 'none';
+    dashContent.style.display = 'none';
+    errorState.style.display = 'flex';
+    errorState.textContent = message;
+  }
+
+  // ── Hard auth gate: no session, no page. ──
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      window.location.replace('login.html');
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const deviceId = (params.get('device') || '').trim();
+
+    if (!deviceId) {
+      showError('No device specified in the URL. Please log in again.');
+      return;
+    }
+
+    deviceLabel.textContent = deviceId;
+    document.title = `${deviceId} | ClearSkies Dashboard`;
+
+    loadingState.style.display = 'none';
+    dashContent.style.display = 'block';
+
+    readingsRef = db.ref(`devices/${deviceId}/readings`);
+    readingsRef.on('value', handleSnapshot, (dbError) => {
+      showError(`Couldn't load readings: ${dbError.message}`);
+    });
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    if (readingsRef) readingsRef.off();
+    auth.signOut().then(() => window.location.replace('login.html'));
+  });
+
+  // ── Data handling ──
+  function handleSnapshot(snapshot) {
+    const raw = snapshot.val();
+    const readings = [];
+
+    if (raw) {
+      Object.values(raw).forEach((entry) => {
+        if (!entry || entry.value === undefined || entry.value === null) return;
+        if (entry.timestamp === undefined || entry.timestamp === null) return;
+        const value = Number(entry.value);
+        const timestamp = Number(entry.timestamp);
+        if (Number.isNaN(value) || Number.isNaN(timestamp)) return;
+        readings.push({
+          value,
+          timestamp,
+          unit: entry.unit || 'pCi/L',
+          variable: entry.variable || '—',
+        });
+      });
+    }
+
+    readings.sort((a, b) => b.timestamp - a.timestamp); // newest first
+    const recent = readings.slice(0, MAX_READINGS);
+    const nowSec = Date.now() / 1000;
+    const last24h = readings.filter(r => r.timestamp >= nowSec - CHART_WINDOW_SECONDS);
+
+    renderSummary(readings);
+    renderTable(recent, readings.length);
+    renderChart(last24h, readings.length > 0);
+  }
+
+  function levelInfo(value) {
+    if (value >= SAFE_LIMIT) return { tier: 'elevated', label: 'Elevated' };
+    if (value >= CAUTION_LIMIT) return { tier: 'caution', label: 'Caution' };
+    return { tier: 'safe', label: 'Safe' };
+  }
+
+  function formatTime(unixSeconds) {
+    const d = new Date(unixSeconds * 1000);
+    return d.toLocaleString(undefined, {
+      month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit',
+    });
+  }
+
+  function renderSummary(readings) {
+    const countEl = document.getElementById('reading-count');
+    countEl.textContent = readings.length;
+
+    const badge = document.getElementById('status-badge');
+    const badgeText = document.getElementById('status-badge-text');
+
+    if (readings.length === 0) {
+      document.getElementById('current-value').textContent = '—';
+      document.getElementById('current-unit').textContent = '';
+      document.getElementById('current-time').textContent = '—';
+      document.getElementById('current-variable').textContent = '—';
+      badge.className = 'badge';
+      badgeText.textContent = 'No data';
+      return;
+    }
+
+    const latest = readings[0];
+    const info = levelInfo(latest.value);
+
+    document.getElementById('current-value').textContent = latest.value.toFixed(2);
+    document.getElementById('current-unit').textContent = latest.unit;
+    document.getElementById('current-time').textContent = formatTime(latest.timestamp);
+    document.getElementById('current-variable').textContent = latest.variable;
+
+    badge.className = `badge badge-${info.tier}`;
+    badgeText.textContent = info.label;
+  }
+
+  function renderTable(readings, totalCount) {
+    const tbody = document.getElementById('readings-tbody');
+    const emptyEl = document.getElementById('table-empty');
+    const table = document.getElementById('readings-table');
+    const sub = document.getElementById('table-sub');
+
+    tbody.innerHTML = '';
+
+    if (readings.length === 0) {
+      table.style.display = 'none';
+      emptyEl.style.display = 'block';
+      sub.textContent = '0 readings';
+      return;
+    }
+
+    table.style.display = 'table';
+    emptyEl.style.display = 'none';
+    sub.textContent = readings.length < totalCount
+      ? `Last ${readings.length} of ${totalCount} · newest first`
+      : `${readings.length} reading${readings.length === 1 ? '' : 's'} · newest first`;
+
+    const frag = document.createDocumentFragment();
+    readings.forEach((r) => {
+      const info = levelInfo(r.value);
+      const tr = document.createElement('tr');
+      tr.dataset.ts = r.timestamp;
+      tr.addEventListener('click', () => selectReading(r.timestamp));
+      tr.style.cursor = 'pointer';
+      tr.innerHTML = `
+        <td class="mono-cell">${formatTime(r.timestamp)}</td>
+        <td class="val-cell">${r.value.toFixed(2)} ${escapeHtml(r.unit)}</td>
+        <td>
+          <span class="badge badge-${info.tier}" style="padding:5px 12px;">
+            <span class="badge-dot"></span>${info.label}
+          </span>
+        </td>
+        <td class="mono-cell">${escapeHtml(r.variable)}</td>
+      `;
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+
+    if (selectedTimestamp !== null) highlightSelection();
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Round step size for y-axis gridlines (e.g. 0, 0.5, 1, 1.5 …).
+  function niceTicks(maxVal, tickCount) {
+    const rawStep = maxVal / tickCount;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const residual = rawStep / mag;
+    let step;
+    if (residual > 5) step = 10 * mag;
+    else if (residual > 2) step = 5 * mag;
+    else if (residual > 1) step = 2 * mag;
+    else step = mag;
+
+    const ticks = [];
+    for (let t = 0; t <= maxVal + step * 0.001; t += step) ticks.push(Math.round(t * 100) / 100);
+    return ticks;
+  }
+
+  // ── Simple dependency-free SVG line chart ──
+  function renderChart(readings, hasAnyReadings) {
+    const container = document.getElementById('chart-container');
+
+    if (readings.length === 0) {
+      chartPoints = [];
+      container.innerHTML = hasAnyReadings
+        ? '<div class="chart-empty">No readings in the past 24 hours.</div>'
+        : '<div class="chart-empty">No readings yet for this device.</div>';
+      return;
+    }
+
+    // Oldest → newest, left to right.
+    const points = [...readings].sort((a, b) => a.timestamp - b.timestamp);
+    chartPoints = points;
+
+    const width = 1000;
+    const height = 280;
+    const padL = 52, padR = 16, padT = 16, padB = 30;
+    const innerW = width - padL - padR;
+    const innerH = height - padT - padB;
+
+    const times = points.map(p => p.timestamp);
+    const values = points.map(p => p.value);
+    const minT = Math.min(...times), maxT = Math.max(...times);
+    const dataMaxV = Math.max(...values, SAFE_LIMIT);
+    const maxV = dataMaxV * 1.15;
+    const minV = 0;
+
+    const x = (t) => padL + (maxT === minT ? innerW / 2 : ((t - minT) / (maxT - minT)) * innerW);
+    const y = (v) => padT + innerH - ((v - minV) / (maxV - minV)) * innerH;
+
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(p.timestamp).toFixed(1)} ${y(p.value).toFixed(1)}`).join(' ');
+    const areaPath = `${linePath} L ${x(points[points.length - 1].timestamp).toFixed(1)} ${(padT + innerH).toFixed(1)} L ${x(points[0].timestamp).toFixed(1)} ${(padT + innerH).toFixed(1)} Z`;
+
+    const thresholdY = y(SAFE_LIMIT).toFixed(1);
+
+    // ── Y axis ──
+    const yTicks = niceTicks(maxV, 4).filter(t => Math.abs(t - SAFE_LIMIT) > (maxV * 0.04));
+    const yAxis = `
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + innerH}" stroke="var(--border)" stroke-width="1" />
+      ${yTicks.map(t => `
+        <line x1="${padL}" y1="${y(t).toFixed(1)}" x2="${width - padR}" y2="${y(t).toFixed(1)}" stroke="var(--border-dim)" stroke-width="1" />
+        <text class="chart-axis-label" x="${padL - 8}" y="${y(t).toFixed(1)}" text-anchor="end" dy="3">${t.toFixed(1)}</text>
+      `).join('')}
+    `;
+
+    const dots = points.map((p) => {
+      const info = levelInfo(p.value);
+      const color = info.tier === 'elevated' ? 'var(--red)' : info.tier === 'caution' ? 'var(--yellow)' : 'var(--green)';
+      const isSelected = selectedTimestamp === p.timestamp;
+      return `<circle class="chart-point${isSelected ? ' selected' : ''}" data-ts="${p.timestamp}" cx="${x(p.timestamp).toFixed(1)}" cy="${y(p.value).toFixed(1)}" r="${isSelected ? 6 : 3.5}" stroke="${color}" onclick="selectReading(${p.timestamp})"><title>${p.value.toFixed(2)} ${escapeHtml(p.unit)} — ${formatTime(p.timestamp)} (click for details)</title></circle>`;
+    }).join('');
+
+    const firstLabel = formatTime(points[0].timestamp);
+    const lastLabel = formatTime(points[points.length - 1].timestamp);
+
+    container.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="chartFade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        ${yAxis}
+        <line class="chart-threshold" x1="${padL}" y1="${thresholdY}" x2="${width - padR}" y2="${thresholdY}" />
+        <path class="chart-area" d="${areaPath}" />
+        <path class="chart-line" d="${linePath}" />
+        ${dots}
+        <text class="chart-axis-label" x="${padL}" y="${height - 8}">${firstLabel}</text>
+        <text class="chart-axis-label" x="${width - padR}" y="${height - 8}" text-anchor="end">${lastLabel}</text>
+        <text class="chart-axis-label" x="${padL - 8}" y="${thresholdY}" text-anchor="end" dy="3" fill="var(--red)">4.0</text>
+      </svg>
+    `;
+
+    if (selectedTimestamp !== null) highlightSelection();
+  }
+
+  // ── Point selection: shared between chart dots and table rows ──
+  function selectReading(timestamp) {
+    const point = chartPoints.find(p => p.timestamp === timestamp);
+    if (!point) return;
+
+    selectedTimestamp = timestamp;
+    highlightSelection();
+
+    const info = levelInfo(point.value);
+    const detail = document.getElementById('chart-detail');
+    detail.innerHTML = `
+      <div class="detail-item">
+        <span class="detail-lbl">Value</span>
+        <span class="detail-val">${point.value.toFixed(2)} ${escapeHtml(point.unit)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-lbl">Time</span>
+        <span class="detail-val">${formatTime(point.timestamp)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-lbl">Variable</span>
+        <span class="detail-val">${escapeHtml(point.variable)}</span>
+      </div>
+      <span class="badge badge-${info.tier}">
+        <span class="badge-dot"></span>${info.label}
+      </span>
+    `;
+  }
+
+  function highlightSelection() {
+    document.querySelectorAll('.chart-point.selected').forEach(c => {
+      if (c.dataset.ts != selectedTimestamp) { c.classList.remove('selected'); c.setAttribute('r', '3.5'); }
+    });
+    const dot = document.querySelector(`.chart-point[data-ts="${selectedTimestamp}"]`);
+    if (dot) { dot.classList.add('selected'); dot.setAttribute('r', '6'); }
+
+    document.querySelectorAll('.readings-table tr.row-selected').forEach(tr => tr.classList.remove('row-selected'));
+    const row = document.querySelector(`.readings-table tr[data-ts="${selectedTimestamp}"]`);
+    if (row) row.classList.add('row-selected');
+  }
+</script>
+</body>
+</html>
