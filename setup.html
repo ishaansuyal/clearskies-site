@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setup | ClearSkies</title>
-  <meta name="description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, Firebase, and TagoIO. $124 to build, free to receive.">
+  <meta name="description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, and Firebase. $124 to build, free to receive.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Setup | ClearSkies">
-  <meta property="og:description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, Firebase, and TagoIO. $124 to build, free to receive.">
+  <meta property="og:description" content="Technical breakdown of the ClearSkies radon sensor: ESP32, RD200 pulsed ion chamber, ESPHome firmware, and Firebase. $124 to build, free to receive.">
   <meta property="og:image" content="https://ishaansuyal.github.io/clearskies-site/favicon.png">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
@@ -106,8 +106,8 @@
         </tr>
         <tr>
           <td>Dashboard</td>
-          <td>TagoIO</td>
-          <td>Pulls from Firebase; renders live time-series charts; shareable public dashboard link</td>
+          <td>Firebase</td>
+          <td>Reads live from Firebase Realtime Database; renders live time-series charts; access gated by per-device login</td>
         </tr>
       </tbody>
     </table>
@@ -172,7 +172,7 @@
       <div class="flow-arrow">&rarr;</div>
       <div class="flow-node">
         <div class="fn-label">Visualize</div>
-        <div class="fn-name">TagoIO</div>
+        <div class="fn-name">Dashboard</div>
       </div>
     </div>
 
@@ -194,11 +194,11 @@
         </p>
       </div>
       <div class="stat-card">
-        <h3>TagoIO Dashboard</h3>
+        <h3>Live Dashboard</h3>
         <p style="margin-top:10px;">
-          TagoIO pulls data from Firebase and renders live charts, historical graphs,
-          and threshold alerts. A shareable public link means homeowners and community
-          members can check readings without creating an account.
+          The dashboard reads directly from Firebase, rendering live charts, historical
+          graphs, and threshold alerts. Access is gated by per-device login, so homeowners
+          and community members sign in to check their own readings.
         </p>
       </div>
     </div>
