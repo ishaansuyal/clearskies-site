@@ -60,7 +60,7 @@
     <section class="panel">
       <div class="panel-head">
         <h2 class="panel-title">Reading Trend</h2>
-        <span class="panel-sub">Past 24 hours · Safe threshold 4.0 pCi/L</span>
+        <span class="panel-sub">Past 24 hours · EPA action level 4.0 pCi/L</span>
       </div>
       <div class="chart-detail" id="chart-detail">Click a point on the chart to see that reading's details.</div>
       <div id="chart-container"></div>
@@ -111,7 +111,7 @@
   const db = firebase.database();
 
   const SAFE_LIMIT = 4.0;
-  const CAUTION_LIMIT = 3.0;
+  const CAUTION_LIMIT = 2.0;
   const MAX_READINGS = 10;
   const CHART_WINDOW_SECONDS = 24 * 60 * 60;
 
@@ -209,9 +209,9 @@
   }
 
   function levelInfo(value) {
-    if (value >= SAFE_LIMIT) return { tier: 'elevated', label: 'Danger' };
+    if (value >= SAFE_LIMIT) return { tier: 'elevated', label: 'Above EPA level' };
     if (value >= CAUTION_LIMIT) return { tier: 'caution', label: 'Caution' };
-    return { tier: 'safe', label: 'Safe' };
+    return { tier: 'safe', label: 'Low' };
   }
 
   function formatTime(unixSeconds) {
