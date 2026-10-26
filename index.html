@@ -222,44 +222,6 @@
 
 <div class="divider"></div>
 
-<!-- ── How it works ── -->
-<section class="section">
-  <div class="container">
-    <div class="section-label">Technical Overview</div>
-    <h2 class="section-title">How a ClearSkies unit works</h2>
-    <p class="section-sub">Each node is built from off-the-shelf hardware, with no proprietary cloud lock-in.</p>
-
-    <div class="pipeline">
-      <div class="pipeline-step">
-        <div class="step-index">Step 01</div>
-        <div class="step-tag">RD200</div>
-        <h3>Pulsed Ion Chamber</h3>
-        <p>The RD200 sensor detects alpha particles emitted by radon decay, producing a count rate proportional to radon concentration.</p>
-      </div>
-      <div class="pipeline-step">
-        <div class="step-index">Step 02</div>
-        <div class="step-tag">ESP32</div>
-        <h3>Edge Processing</h3>
-        <p>The ESP32 microcontroller reads the RD200 over serial UART, converts counts to pCi/L, and prepares the payload for transmission.</p>
-      </div>
-      <div class="pipeline-step">
-        <div class="step-index">Step 03</div>
-        <div class="step-tag">ESPHome</div>
-        <h3>Firmware &amp; Wi-Fi</h3>
-        <p>ESPHome YAML config handles the 10-minute polling cycle, Wi-Fi connectivity, and pushes readings to the cloud endpoint.</p>
-      </div>
-      <div class="pipeline-step">
-        <div class="step-index">Step 04</div>
-        <div class="step-tag">Firebase</div>
-        <h3>Live Dashboard</h3>
-        <p>Readings land in Firebase Realtime Database, and the dashboard on this site reads it directly, rendering a live, per-device time-series view behind login.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
 <!-- ── Deployment ── -->
 <section class="section">
   <div class="container">
